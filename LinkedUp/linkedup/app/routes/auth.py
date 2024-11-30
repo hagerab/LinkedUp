@@ -1,8 +1,9 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, url_for
 from app.models.user import User, db
 from werkzeug.security import generate_password_hash
 from werkzeug.security import check_password_hash
 from flask_jwt_extended import create_access_token
+from app.services.auth_service import handle_oauth_login
 
 auth_bp = Blueprint('auth', __name__)
 
@@ -32,3 +33,22 @@ def login():
         access_token = create_access_token(identity=user.id)
         return jsonify(access_token=access_token), 200
     return jsonify({"message": "Invalid credentials"}), 401
+
+
+
+@auth_bp.route('/login/google')
+def login_google():
+    redirect_uri = url_for('auth.auth_google', _external=True)
+    return handle_oauth_login(redirect_uri)  # Redirect to Google OAuth
+
+@auth_bp.route('/auth/callback')
+def auth_google():
+
+    token = request.args.get('token')  
+    user = handle_oauth_login(token)
+    
+    if user:
+        access_token = create_access_token(identity=user.id)
+        return jsonify(access_token=access_token), 200
+    else:
+        return jsonify({"message": "OAuth authentication failed."}), 401
