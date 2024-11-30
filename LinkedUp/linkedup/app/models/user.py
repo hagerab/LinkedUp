@@ -5,7 +5,8 @@ from flask_login import UserMixin
 db = SQLAlchemy()
 
 class User(db.Model, UserMixin):
-    id = db.Column(db.Integer, primary_key=True)
+    __tablename__ = 'users'  # Ensure it matches the name of your table
+    user_id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(120), unique=True, nullable=False)
     password = db.Column(db.String(60), nullable=False)
     name = db.Column(db.String(100), nullable=False)
