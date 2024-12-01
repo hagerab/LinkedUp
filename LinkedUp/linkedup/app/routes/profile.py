@@ -6,7 +6,7 @@ from werkzeug.security import generate_password_hash
 profile_bp = Blueprint('profile', __name__)
 
 
-@profile_bp.route('', methods=['GET', 'PUT'])
+@profile_bp.route('/profile', methods=['GET', 'PUT'])
 @login_required
 def profile():
     
@@ -15,7 +15,8 @@ def profile():
         return jsonify({
             "name": current_user.name,
             "email": current_user.email,
-            "bio": current_user.bio  # Include bio in the response
+            "bio": current_user.bio,  # Include bio in the response
+            "profile_picture": current_user.profile_picture  # Include profile picture URL
         })
 
     if request.method == 'PUT':
@@ -23,6 +24,7 @@ def profile():
         data = request.get_json()
         current_user.name = data.get('name', current_user.name)
         current_user.bio = data.get('bio', current_user.bio)  # Update bio if provided
+        current_user.profile_picture = data.get('profile_picture', current_user.profile_picture)  # Update profile picture
         db.session.commit()
 
         return jsonify({"message": "Profile updated successfully."}), 200
